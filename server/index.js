@@ -4,6 +4,8 @@ const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
 const PORT = process.env.PORT || 5000;
+const getBearerToken = require('get-twitter-bearer-token')
+const Twitter = require('twitter');
 
 // Multi-process to utilize all CPU cores.
 if (cluster.isMaster) {
@@ -26,8 +28,23 @@ if (cluster.isMaster) {
 
   // Answer API requests.
   app.get('/api', function (req, res) {
+    var key = "ya key";
+    var secret = "ya secret";
+
+    getBearerToken(key, secret, (err, res) => {
+      if (err) {
+        // handle error
+      } else {
+        var client = new Twitter({
+          bearer_token: res.body.access_token,
+        });
+        client.get('search/tweets', {q: '#WorldCup'}, function(error, tweets, response) {
+          console.log(tweets);
+        });
+      }
+    })
     res.set('Content-Type', 'application/json');
-    res.send('{"message":"Hello from the custom server!"}');
+    res.send('{"message":"yo"}');
   });
 
   // All remaining requests return the React app, so it can handle routing.
