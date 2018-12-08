@@ -28,27 +28,32 @@ if (cluster.isMaster) {
 
   // Answer API requests.
   app.get('/api', function (req, res) {
-    var key = "ya key";
-    var secret = "ya secret";
+    var key = "YtQtiSPUgTdQtl41l5m598KZi";
+    var secret = "fAPrpAyZANkYbx258xanMtpMYRPZW2QyMedYgWrlhaOQv3vEn5";
 
-    getBearerToken(key, secret, (err, res) => {
+    getBearerToken(key, secret, (err, response) => {
       if (err) {
         // handle error
       } else {
         var client = new Twitter({
-          bearer_token: res.body.access_token,
+          bearer_token: response.body.access_token,
         });
-        client.get('search/tweets', {q: '#WorldCup'}, function(error, tweets, response) {
-          console.log(tweets);
+        client.get('tweets/search/30day/dev.json', {
+          'query': "@ntelcare to:ntelcare",
+          'maxResults': '10',
+        }, function (error, tweets, response) {
+          // res.set('Content-Type', 'application/json');
+          res.send({ "response": response });
+
         });
       }
     })
-    res.set('Content-Type', 'application/json');
-    res.send('{"message":"yo"}');
+    // res.write('{ "message": "success2" }');
+
   });
 
   // All remaining requests return the React app, so it can handle routing.
-  app.get('*', function(request, response) {
+  app.get('*', function (request, response) {
     response.sendFile(path.resolve(__dirname, '../react-ui/build', 'index.html'));
   });
 

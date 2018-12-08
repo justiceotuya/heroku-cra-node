@@ -7,7 +7,8 @@ class App extends Component {
     super(props);
     this.state = {
       message: null,
-      fetching: true
+      fetching: true,
+      response: null,
     };
   }
 
@@ -22,6 +23,9 @@ class App extends Component {
       .then(json => {
         this.setState({
           message: json.message,
+          fullResponse: json.response,
+          responseData: json.response.body,
+          responseResultArray: json.response.body.results,
           fetching: false
         });
       }).catch(e => {
@@ -33,8 +37,28 @@ class App extends Component {
   }
 
   render() {
+    var test;
+    var parsedData;
+    if (this.state.responseData !== null && !this.state.fetching) {
+      parsedData = JSON.parse(this.state.responseData);
+      parsedData.results.map(element => {
+        if (!element.truncated) {
+          test = element.text;
+        } else {
+          test = element.extended_tweet.full_text;
+        }
+        if (test.includes("0804")) {
+          console.log(test.split(" "))
+        }
+      })
+      // console.log(parsedData.results)
+      // var mainData = this.state.response;
+    }
+
+
+
     return (
-      <div className="App">
+      <div className="App" >
         <div className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h2>Welcome to React</h2>
@@ -43,14 +67,21 @@ class App extends Component {
           {'This is '}
           <a href="https://github.com/mars/heroku-cra-node">
             {'create-react-app with a custom Node/Express server'}
-          </a><br/>
+          </a><br />
         </p>
-        <p className="App-intro">
-          {this.state.fetching
-            ? 'Fetching message from API'
-            : this.state.message}
-        </p>
-      </div>
+        {parsedData !== undefined ?
+          parsedData.results.map(element => {
+            return (<p key={element.id}>{!element.truncated ? element.text : element.extended_tweet.full_text}</p>)
+          })
+          :
+          <p>loading data</p>
+        }
+        {
+          // console.log('response', parsedData)
+
+        }
+
+      </div >
     );
   }
 }
